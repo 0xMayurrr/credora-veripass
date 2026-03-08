@@ -13,10 +13,10 @@
 
 ---
 
-## 📖 What is Credora?
-Credora is a next-generation **Decentralized Identity (DID) Wallet** platform built for Web3 professionals. Instead of relying on centralized middlemen (like universities or traditional Web2 job boards) to hold the keys to your achievements, Credora allows you to generate a permanent Decentralized Identifier (DID) and receive **Verifiable Credentials** directly to your MetaMask wallet.
+## ⚡ The Protocol
+Credora is a privacy-first, Universal Credential Wallet. We transform real-world achievements—university degrees, bootcamp certifications, and DAO contributions—into **Verifiable Credentials** bound to a permanent Decentralized Identifier (DID). 
 
-These credentials represent real-world achievements: University Degrees, Bootcamp Certifications, DAO contributions, and Hackathon wins. Using **Zero-Knowledge Proofs (ZK-SNARKs)**, users can prove they hold certain credentials (like a Top 10% Dev Rep Score) to recruiters or platforms without ever leaking their raw, underlying data.
+Using **Zero-Knowledge Proofs (ZK-SNARKs)**, users safely prove their reputation across the internet without ever leaking the underlying data. Own your identity, not just your tokens.
 
 ---
 
