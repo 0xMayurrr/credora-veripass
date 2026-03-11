@@ -1,0 +1,190 @@
+# configtx.yaml — Credora Hyperledger Fabric Network Configuration
+# 3 Organizations: Government, University, Verifier
+
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: organizations/orderer/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+
+  - &GovernmentOrg
+    Name: GovernmentOrg
+    ID: GovernmentMSP
+    MSPDir: organizations/org1-government/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('GovernmentMSP.admin', 'GovernmentMSP.peer', 'GovernmentMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('GovernmentMSP.admin', 'GovernmentMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('GovernmentMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('GovernmentMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.government.credora.com
+        Port: 7051
+
+  - &UniversityOrg
+    Name: UniversityOrg
+    ID: UniversityMSP
+    MSPDir: organizations/org2-universities/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('UniversityMSP.admin', 'UniversityMSP.peer', 'UniversityMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('UniversityMSP.admin', 'UniversityMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('UniversityMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('UniversityMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.university.credora.com
+        Port: 9051
+
+  - &VerifierOrg
+    Name: VerifierOrg
+    ID: VerifierMSP
+    MSPDir: organizations/org3-verifiers/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('VerifierMSP.admin', 'VerifierMSP.peer', 'VerifierMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('VerifierMSP.admin', 'VerifierMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('VerifierMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('VerifierMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.verifier.credora.com
+        Port: 11051
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.credora.com:7050
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.credora.com
+        Port: 7050
+        ClientTLSCert: organizations/orderer/tls/server.crt
+        ServerTLSCert: organizations/orderer/tls/server.crt
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+  Capabilities:
+    <<: *OrdererCapabilities
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  # Genesis block for the orderer
+  CredoraOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+    Consortiums:
+      CredoraConsortium:
+        Organizations:
+          - *GovernmentOrg
+          - *UniversityOrg
+          - *VerifierOrg
+
+  # Main channel: all 3 orgs participate
+  CredoraMainChannel:
+    Consortium: CredoraConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *GovernmentOrg
+        - *UniversityOrg
+        - *VerifierOrg
+
+  # Gov-only private channel for internal ministry approvals
+  CredoraGovChannel:
+    Consortium: CredoraConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *GovernmentOrg

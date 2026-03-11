@@ -1,0 +1,49 @@
+# crypto-config.yaml — Credora Hyperledger Fabric Cryptographic Configuration
+# Generates MSP certs for all orgs, peers, orderer, and users
+
+OrdererOrgs:
+  - Name: Orderer
+    Domain: credora.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+        SANS:
+          - localhost
+          - 127.0.0.1
+
+PeerOrgs:
+  # ── Organization 1: Government (MeitY / NIC / UGC) ───────────────────────────
+  - Name: Government
+    Domain: government.credora.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2          # peer0 + peer1 for high availability
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 3          # Admin + 2 govt officers (GovOfficer1, GovOfficer2)
+
+  # ── Organization 2: Universities (IIT Madras, Rathinam, etc.) ────────────────
+  - Name: University
+    Domain: university.credora.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2          # peer0 + peer1
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 3          # Admin + 2 university officers
+
+  # ── Organization 3: Verifiers (Banks, Employers) ─────────────────────────────
+  - Name: Verifier
+    Domain: verifier.credora.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1          # Read-only verifiers need only 1 peer
+      SANS:
+        - localhost
+        - 127.0.0.1
+    Users:
+      Count: 2          # Admin + 1 verifier user

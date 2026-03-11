@@ -13,23 +13,25 @@ export const api = {
       if (!res.ok) throw new Error('Login failed');
       return res.json();
     },
-    signup: async (email: string, password: string, name: string, role: string) => {
+    signup: async (email: string, password: string, name: string, role: string, extraFields?: Record<string, string>) => {
       const res = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, role }),
+        body: JSON.stringify({ email, password, name, role, ...extraFields }),
       });
-      if (!res.ok) throw new Error('Signup failed');
-      return res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Signup failed');
+      return data;
     },
-    getNonce: async (walletAddress: string, role?: string) => {
+    getNonce: async (walletAddress: string, role?: string, extraFields?: Record<string, string>) => {
       const res = await fetch(`${API_URL}/auth/nonce`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ walletAddress, role }),
+        body: JSON.stringify({ walletAddress, role, ...extraFields }),
       });
-      if (!res.ok) throw new Error('Failed to get nonce');
-      return res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to get nonce');
+      return data;
     },
     verifyWallet: async (walletAddress: string, signature: string) => {
       const res = await fetch(`${API_URL}/auth/verify`, {

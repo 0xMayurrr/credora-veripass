@@ -3,11 +3,29 @@ const ethers = require('ethers');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN || '30d'
     });
+};
+
+// Normalize sent role strings to our enum values
+const normalizeRole = (role) => {
+    if (!role) return 'CITIZEN';
+    const map = {
+        individual: 'CITIZEN',
+        user: 'CITIZEN',
+        citizen: 'CITIZEN',
+        issuer: 'ISSUER_OFFICER',
+        issuer_officer: 'ISSUER_OFFICER',
+        ISSUER_OFFICER: 'ISSUER_OFFICER',
+        approver: 'APPROVER',
+        APPROVER: 'APPROVER',
+        admin: 'ADMIN',
+        ADMIN: 'ADMIN',
+        CITIZEN: 'CITIZEN',
+    };
+    return map[role] || map[role.toLowerCase()] || 'CITIZEN';
 };
 
 // @desc    Signup with Email
@@ -15,29 +33,62 @@ const generateToken = (id) => {
 // @access  Public
 exports.signup = async (req, res, next) => {
     try {
-        const { email, password, name, role } = req.body;
-        if (!email || !password) return res.status(400).json({ success: false, error: 'Please provide email and password' });
+        const {
+            email, password, name, role,
+            // Role-specific fields
+            organizationName, employeeId, department,
+            licenseNumber, registrarId, companyId,
+            verifierType, website, description
+        } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: 'Please provide email and password' });
+        }
 
         let user = await User.findOne({ email: email.toLowerCase() });
-        if (user) return res.status(400).json({ success: false, error: 'User already exists' });
+        if (user) {
+            return res.status(400).json({ success: false, error: 'User already exists with this email' });
+        }
 
-        const nonce = crypto.randomBytes(16).toString('hex');
-        const walletAddress = '0x' + crypto.randomBytes(20).toString('hex'); // mock wallet for email users
-
-        const normalizedRole = role === 'individual' ? 'user' : role;
+        const normalizedRole = normalizeRole(role);
+        const mockWallet = '0x' + crypto.randomBytes(20).toString('hex');
 
         user = await User.create({
             email: email.toLowerCase(),
             name,
-            role: normalizedRole || 'user',
-            walletAddress,
-            did: `did:ethr:sepolia:${walletAddress}`,
-            nonce: `DeID Auth Nonce: ${nonce}`
+            role: normalizedRole,
+            walletAddress: mockWallet,
+            did: `did:ethr:sepolia:${mockWallet}`,
+            // Role-specific fields (only defined ones will be saved)
+            ...(organizationName && { organizationName }),
+            ...(employeeId      && { employeeId }),
+            ...(department      && { department }),
+            ...(licenseNumber   && { licenseNumber }),
+            ...(registrarId     && { registrarId }),
+            ...(companyId       && { companyId }),
+            ...(verifierType    && { verifierType }),
+            ...(website         && { website }),
+            ...(description     && { description }),
         });
 
         const token = generateToken(user._id);
-        res.status(201).json({ success: true, token, user: { id: user._id, email: user.email, name: user.name, role: user.role, walletAddress: user.walletAddress, did: user.did } });
+        res.status(201).json({
+            success: true,
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                walletAddress: user.walletAddress,
+                did: user.did,
+                organizationName: user.organizationName,
+                employeeId: user.employeeId,
+                department: user.department,
+            }
+        });
     } catch (error) {
+        console.error('Signup error:', error);
         next(error);
     }
 };
@@ -48,13 +99,29 @@ exports.signup = async (req, res, next) => {
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ success: false, error: 'Please provide email and password' });
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: 'Please provide email and password' });
+        }
 
         const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        if (!user) {
+            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        }
 
         const token = generateToken(user._id);
-        res.status(200).json({ success: true, token, user: { id: user._id, email: user.email, name: user.name, role: user.role, walletAddress: user.walletAddress, did: user.did } });
+        res.status(200).json({
+            success: true,
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                walletAddress: user.walletAddress,
+                did: user.did,
+                organizationName: user.organizationName,
+            }
+        });
     } catch (error) {
         next(error);
     }
@@ -65,7 +132,8 @@ exports.login = async (req, res, next) => {
 // @access  Public
 exports.getNonce = async (req, res, next) => {
     try {
-        const { walletAddress, role } = req.body;
+        const { walletAddress, role, name, organizationName, employeeId, department,
+                licenseNumber, registrarId, companyId, verifierType } = req.body;
 
         if (!walletAddress) {
             return res.status(400).json({ success: false, error: 'Please provide a wallet address' });
@@ -76,32 +144,46 @@ exports.getNonce = async (req, res, next) => {
 
         const nonce = crypto.randomBytes(16).toString('hex');
         const nonceMessage = `DeID Auth Nonce: ${nonce}`;
+        const normalizedRole = normalizeRole(role);
 
         if (!user) {
-            const normalizedRole = role === 'individual' ? 'user' : role;
-            // Register new user
+            // Register new wallet user automatically
             user = await User.create({
                 walletAddress: formattedAddress,
-                role: normalizedRole || 'user',
+                role: normalizedRole,
                 did: `did:ethr:sepolia:${formattedAddress}`,
-                nonce: nonceMessage
+                nonce: nonceMessage,
+                ...(name             && { name }),
+                ...(organizationName && { organizationName }),
+                ...(employeeId       && { employeeId }),
+                ...(department       && { department }),
+                ...(licenseNumber    && { licenseNumber }),
+                ...(registrarId      && { registrarId }),
+                ...(companyId        && { companyId }),
+                ...(verifierType     && { verifierType }),
             });
         } else {
             user.nonce = nonceMessage;
-            if (!user.did) {
-                user.did = `did:ethr:sepolia:${formattedAddress}`;
+            if (!user.did) user.did = `did:ethr:sepolia:${formattedAddress}`;
+            // Don't downgrade role
+            if (normalizedRole && normalizedRole !== 'CITIZEN') {
+                user.role = normalizedRole;
             }
-            if (role && role !== 'individual' && role !== 'user') {
-                user.role = role; // Upgrade role if they signed up as issuer now
-            }
+            // Merge profile fields if provided
+            if (name)             user.name = name;
+            if (organizationName) user.organizationName = organizationName;
+            if (employeeId)       user.employeeId = employeeId;
+            if (department)       user.department = department;
+            if (licenseNumber)    user.licenseNumber = licenseNumber;
+            if (registrarId)      user.registrarId = registrarId;
+            if (companyId)        user.companyId = companyId;
+            if (verifierType)     user.verifierType = verifierType;
             await user.save();
         }
 
-        res.status(200).json({
-            success: true,
-            nonce: nonceMessage
-        });
+        res.status(200).json({ success: true, nonce: nonceMessage });
     } catch (error) {
+        console.error('getNonce error:', error.message);
         next(error);
     }
 };
@@ -121,10 +203,9 @@ exports.verifySignature = async (req, res, next) => {
         const user = await User.findOne({ walletAddress: formattedAddress });
 
         if (!user) {
-            return res.status(404).json({ success: false, error: 'User unauthenticated' });
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
 
-        // Verify the signature
         const recoveredAddress = ethers.verifyMessage(user.nonce, signature);
 
         if (recoveredAddress.toLowerCase() !== formattedAddress) {
@@ -142,13 +223,22 @@ exports.verifySignature = async (req, res, next) => {
             token,
             user: {
                 id: user._id,
+                name: user.name,
+                email: user.email,
                 walletAddress: user.walletAddress,
                 role: user.role,
-                did: user.did
+                did: user.did,
+                organizationName: user.organizationName,
+                employeeId: user.employeeId,
+                department: user.department,
+                licenseNumber: user.licenseNumber,
+                registrarId: user.registrarId,
+                companyId: user.companyId,
+                verifierType: user.verifierType,
             }
         });
-
     } catch (error) {
+        console.error('verifySignature error:', error);
         next(error);
     }
 };
@@ -159,10 +249,7 @@ exports.verifySignature = async (req, res, next) => {
 exports.getMe = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id);
-        res.status(200).json({
-            success: true,
-            data: user
-        });
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
         next(error);
     }
@@ -178,21 +265,20 @@ exports.updateMe = async (req, res, next) => {
             email: req.body.email,
             organizationName: req.body.organizationName,
             website: req.body.website,
-            description: req.body.description
+            description: req.body.description,
+            employeeId: req.body.employeeId,
+            department: req.body.department,
+            licenseNumber: req.body.licenseNumber,
+            registrarId: req.body.registrarId,
+            companyId: req.body.companyId,
+            verifierType: req.body.verifierType,
         };
 
-        // Remove undefined fields
         Object.keys(fieldsToUpdate).forEach(key => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]);
 
-        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-            new: true,
-            runValidators: true
-        });
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, { new: true, runValidators: true });
 
-        res.status(200).json({
-            success: true,
-            data: user
-        });
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
         next(error);
     }

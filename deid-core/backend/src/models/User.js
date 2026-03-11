@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     walletAddress: {
         type: String,
-        required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        sparse: true
     },
     email: {
         type: String,
@@ -26,23 +27,26 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'issuer'],
-        default: 'user'
+        // All valid roles — old 'user'/'issuer' kept for backward compat
+        enum: ['user', 'issuer', 'CITIZEN', 'ISSUER_OFFICER', 'APPROVER', 'ADMIN'],
+        default: 'CITIZEN'
     },
-    organizationName: {
-        type: String,
-        trim: true
-    },
-    website: {
-        type: String,
-        trim: true
-    },
-    description: {
-        type: String
-    },
+
+    // ── Role-specific extra fields ────────────────────────────────────────────
+    organizationName: { type: String, trim: true },   // Gov/University/Issuer
+    employeeId:       { type: String, trim: true },   // Gov officer employee ID
+    department:       { type: String, trim: true },   // Government department
+    licenseNumber:    { type: String, trim: true },   // University registrar license
+    registrarId:      { type: String, trim: true },   // University registrar ID
+    companyId:        { type: String, trim: true },   // Employer/Verifier company ID
+    verifierType:     { type: String, trim: true },   // 'bank' | 'employer' | 'other'
+    website:          { type: String, trim: true },
+    description:      { type: String },
+    avatar:           { type: String },
+
     nonce: {
         type: String,
-        required: true
+        default: () => `DeID Auth Nonce: ${crypto.randomBytes(16).toString('hex')}`
     },
     createdAt: {
         type: Date,

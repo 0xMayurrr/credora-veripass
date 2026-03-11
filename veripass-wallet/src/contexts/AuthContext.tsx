@@ -34,8 +34,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  loginWithWallet: (role?: string) => Promise<void>;
-  signup: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
+  loginWithWallet: (role?: string, extraFields?: Record<string, string>) => Promise<void>;
+  signup: (email: string, password: string, name: string, role: UserRole, extraFields?: Record<string, string>) => Promise<void>;
   logout: () => void;
 }
 
@@ -102,34 +102,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const loginWithWallet = useCallback(async (role?: string) => {
+  const loginWithWallet = useCallback(async (role?: string, extraFields?: Record<string, string>) => {
     setIsLoading(true);
     if (!(window as any).ethereum) {
       setIsLoading(false);
-      throw new Error("MetaMask not installed");
+      throw new Error("MetaMask not installed. Please install MetaMask extension.");
     }
     try {
-      await (window as any).ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [{ eth_accounts: {} }],
-      });
-
+      // Request account access (shows MetaMask popup)
       const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
       const address = accounts[0];
 
-      // 1. Get nonce from backend (for signature auth — still needed for JWT session)
-      const { nonce } = await api.auth.getNonce(address, role);
+      // 1. Get nonce — passes role + extra profile fields so backend saves them
+      const { nonce } = await api.auth.getNonce(address, role, extraFields);
 
-      // 2. Sign the nonce
+      // 2. Ask user to sign the nonce to prove wallet ownership
       const signature = await (window as any).ethereum.request({
         method: "personal_sign",
         params: [nonce, address],
       });
 
-      // 3. Verify signature with backend (get JWT token + basic profile metadata)
+      // 3. Verify signature with backend — get JWT token + profile
       const { token, user: userData } = await api.auth.verifyWallet(address, signature);
 
-      // 4. ✅ Read the REAL role from the blockchain — override what the backend says
+      // 4. ✅ Read the REAL role from the blockchain (overrides DB role if mismatch)
       const chainRole = await getRoleFromChain(address);
       const effectiveRole: UserRole =
         chainRole !== "CITIZEN" ? chainRole : (userData.role as UserRole) || "CITIZEN";
@@ -149,13 +145,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const signup = useCallback(async (email: string, password: string, name: string, role: UserRole) => {
+  const signup = useCallback(async (email: string, password: string, name: string, role: UserRole, extraFields?: Record<string, string>) => {
     setIsLoading(true);
     try {
-      const { token, user: userData } = await api.auth.signup(email, password, name, role);
+      const { token, user: userData } = await api.auth.signup(email, password, name, role, extraFields);
       const u: User = { ...userData, loginMethod: "email" as const };
       persistUser(u);
       localStorage.setItem("deid_token", token);
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
