@@ -1,0 +1,6 @@
+{
+  "roleManager": "0xFa907BA0b26C25dE7b05F633A87277C8e55e74ba",
+  "revocationRegistry": "0x6e8250A83d844C70A0F2e5235047dCCe0DC932F2",
+  "credentialRegistry": "0x83412e2323B7e028A24cECD5b17c56102D216756",
+  "certificateLifecycle": "0xAa1EB53a583b9E4eE9b6261B6F4AdC404211C137"
+}

@@ -141,6 +141,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       persistUser(u);
       localStorage.setItem("deid_token", token);
+    } catch (error: any) {
+      console.error("Wallet connection error:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }

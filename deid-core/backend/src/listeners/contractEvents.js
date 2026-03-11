@@ -17,6 +17,13 @@ const listenToEvents = () => {
         }
 
         const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC_URL);
+        
+        provider.getNetwork().then(() => {
+            console.log("✅ Successfully connected to Blockchain RPC");
+        }).catch(err => {
+            console.error("⚠️ Warning: Could not connect to Blockchain RPC immediately. The listener will keep trying in the background, but the server will remain up. Error:", err.message);
+        });
+
         const contract = new ethers.Contract(process.env.LIFECYCLE_CONTRACT_ADDRESS, certLifecycleABI, provider);
 
         contract.on("CertificateStateChanged", async (docHash, newState, changedBy, timestamp) => {

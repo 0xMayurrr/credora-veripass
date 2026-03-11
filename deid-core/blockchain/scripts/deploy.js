@@ -1,4 +1,5 @@
 const hre = require("hardhat");
+const fs = require("fs");
 
 async function main() {
     const [deployer] = await hre.ethers.getSigners();
@@ -18,18 +19,31 @@ async function main() {
     const revocationRegistryAddress = await revocationRegistry.getAddress();
     console.log("✅ RevocationRegistry deployed to:", revocationRegistryAddress);
 
-    // 3. Deploy CertificateLifecycle
+    // 3. Deploy CredentialRegistry
+    const CredentialRegistry = await hre.ethers.getContractFactory("CredentialRegistry");
+    const credentialRegistry = await CredentialRegistry.deploy(roleManagerAddress);
+    await credentialRegistry.waitForDeployment();
+    const credentialRegistryAddress = await credentialRegistry.getAddress();
+    console.log("✅ CredentialRegistry deployed to:", credentialRegistryAddress);
+
+    // 4. Deploy CertificateLifecycle
     const CertificateLifecycle = await hre.ethers.getContractFactory("CertificateLifecycle");
     const certificateLifecycle = await CertificateLifecycle.deploy(roleManagerAddress, revocationRegistryAddress);
     await certificateLifecycle.waitForDeployment();
     const lifecycleAddress = await certificateLifecycle.getAddress();
     console.log("✅ CertificateLifecycle deployed to:", lifecycleAddress);
 
+    const addresses = {
+        roleManager: roleManagerAddress,
+        revocationRegistry: revocationRegistryAddress,
+        credentialRegistry: credentialRegistryAddress,
+        certificateLifecycle: lifecycleAddress
+    };
+
+    fs.writeFileSync("deployed_addresses.json", JSON.stringify(addresses, null, 2));
+
     console.log("\n--- DEPLOYMENT SUMMARY ---");
-    console.log("Copy these to your .env files:");
-    console.log(`VITE_LIFECYCLE_CONTRACT_ADDRESS=${lifecycleAddress}`);
-    console.log(`LIFECYCLE_CONTRACT_ADDRESS=${lifecycleAddress}`);
-    console.log(`ROLE_MANAGER_ADDRESS=${roleManagerAddress}`);
+    console.log("Addresses saved to deployed_addresses.json");
     console.log("--------------------------");
 }
 

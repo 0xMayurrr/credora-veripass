@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Credora | Secure India's Credentials</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a243e",
+                        "gov-blue": "#1a73e8",
+                        "teal-accent": "#00c49a",
+                        "background-light": "#f8faff",
+                        "background-dark": "#0a2540",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"],
+                        "logo": ["Trebuchet MS", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .hex-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill-opacity='0.05' fill='%2300c49a' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .india-watermark {
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark antialiased overflow-x-hidden">
+<div class="flex min-h-screen w-full flex-col lg:flex-row">
+<!-- LEFT PANEL (40%) -->
+<div class="relative w-full lg:w-[40%] bg-background-dark p-8 lg:p-16 flex flex-col justify-between overflow-hidden border-r border-slate-800">
+<!-- Background Elements -->
+<div class="absolute inset-0 hex-bg z-0"></div>
+<div class="absolute top-20 right-[-10%] w-full h-full z-0 pointer-events-none opacity-20">
+<img class="india-watermark w-full h-auto object-contain" data-alt="Faint silhouette map of India watermark" data-location="India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKaAR-rJXGoz5Y6aVZmrI8GpInu9UMFvXjle4e8vDjK4Qdzl9-Q8hEZnyot4KoqRg1mFKtQTeMQXe9qgoWNOdeeN2S6Z5RSpDP-oIKEoll7W9j9CsayznJcr_lTN2FriCdwboIcR7Idqm5c4hfgibXsVrXDqJn9NQ7rBD5lJcFHCvZcnyOjjvF5XTkwQkT7m1Eg5vqlwFjqpuyS6jxinWw-J_pUs3pxxomOSLKs2X63qj2rAEbPjP3pz10ZdtdDTDsjzCmNmcSkPI"/>
+</div>
+<!-- Content -->
+<div class="relative z-10 space-y-12">
+<div class="flex items-center gap-3">
+<span class="text-teal-accent text-3xl">⬡</span>
+<h1 class="font-logo font-bold text-3xl tracking-[0.2em] text-white">CREDORA</h1>
+</div>
+<div class="space-y-6">
+<h2 class="text-white text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+                        Securing India's Credentials on the Blockchain
+                    </h2>
+<div class="space-y-4 pt-4">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-teal-accent">check_circle</span>
+<div>
+<p class="text-white font-bold">Hyperledger Fabric</p>
+<p class="text-slate-400 text-sm">Enterprise-grade permissioned infrastructure.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-teal-accent">check_circle</span>
+<div>
+<p class="text-white font-bold">Zero-Knowledge Privacy</p>
+<p class="text-slate-400 text-sm">Secure data sovereignty with ZK-proofs.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-teal-accent">check_circle</span>
+<div>
+<p class="text-white font-bold">Government Aligned</p>
+<p class="text-slate-400 text-sm">Compliant with MeitY, UGC, and DigiLocker.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Badge & Nodes -->
+<div class="relative z-10 pt-12">
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-primary/40 border border-teal-accent/30 rounded-full text-xs font-bold text-teal-accent tracking-widest uppercase">
+<span class="material-symbols-outlined text-sm">military_tech</span>
+                    Blockchain India Challenge 2024
+                </div>
+<!-- Connected Nodes Mockup -->
+<div class="mt-8 flex gap-4 opacity-40">
+<div class="relative h-24 w-full">
+<svg class="w-full h-full" viewbox="0 0 200 100">
+<circle cx="20" cy="50" fill="#00c49a" r="3"></circle>
+<circle cx="80" cy="20" fill="#00c49a" r="3"></circle>
+<circle cx="140" cy="70" fill="#00c49a" r="3"></circle>
+<circle cx="180" cy="30" fill="#00c49a" r="3"></circle>
+<line stroke="#00c49a" stroke-width="0.5" x1="20" x2="80" y1="50" y2="20"></line>
+<line stroke="#00c49a" stroke-width="0.5" x1="80" x2="140" y1="20" y2="70"></line>
+<line stroke="#00c49a" stroke-width="0.5" x1="140" x2="180" y1="70" y2="30"></line>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL (60%) -->
+<div class="w-full lg:w-[60%] bg-background-light dark:bg-slate-50 p-8 lg:px-24 lg:py-16 overflow-y-auto">
+<div class="max-w-2xl mx-auto space-y-10">
+<div class="flex justify-between items-center">
+<h2 class="text-primary font-logo font-bold text-3xl">Create Your Account</h2>
+<p class="text-slate-500 text-sm">Already registered? <a class="text-gov-blue font-bold" href="#">Login</a></p>
+</div>
+<!-- Role Selector Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Government Card (Selected) -->
+<div class="relative p-5 bg-teal-accent/5 border-2 border-teal-accent rounded-xl cursor-pointer group transition-all">
+<div class="absolute top-3 right-3 bg-teal-accent text-white rounded-full p-1">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-teal-accent text-3xl">account_balance</span>
+<h3 class="font-bold text-primary text-sm tracking-tight uppercase">Government Officer</h3>
+</div>
+<p class="text-slate-600 text-xs leading-relaxed">Access federal and state credential issuing portals.</p>
+</div>
+<!-- University Card -->
+<div class="p-5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-gov-blue/50 transition-all">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-slate-400 text-3xl">school</span>
+<h3 class="font-bold text-slate-700 text-sm tracking-tight uppercase">University Officer</h3>
+</div>
+<p class="text-slate-500 text-xs leading-relaxed">Manage student records and verified degree certificates.</p>
+</div>
+<!-- Verifier Card -->
+<div class="p-5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-gov-blue/50 transition-all">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-slate-400 text-3xl">domain_verification</span>
+<h3 class="font-bold text-slate-700 text-sm tracking-tight uppercase">Verifier (Bank/Employer)</h3>
+</div>
+<p class="text-slate-500 text-xs leading-relaxed">Instantly verify citizen credentials via secure API.</p>
+</div>
+<!-- Citizen Card -->
+<div class="p-5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-gov-blue/50 transition-all">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-slate-400 text-3xl">person</span>
+<h3 class="font-bold text-slate-700 text-sm tracking-tight uppercase">Citizen</h3>
+</div>
+<p class="text-slate-500 text-xs leading-relaxed">Securely store and share your verifiable IDs.</p>
+</div>
+</div>
+<!-- Registration Form -->
+<form class="space-y-5">
+<div class="space-y-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-3 text-slate-400">person</span>
+<input class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-gov-blue focus:border-transparent outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Full Name" type="text"/>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-3 text-slate-400">corporate_fare</span>
+<input class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-gov-blue focus:border-transparent outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Organization / Institution" type="text"/>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-3 text-slate-400">mail</span>
+<input class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-gov-blue focus:border-transparent outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Email Address" type="email"/>
+</div>
+</div>
+<!-- Web3 Connect -->
+<div class="pt-4">
+<p class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-4">Connect Your Wallet</p>
+<div class="flex gap-4">
+<button class="flex-1 flex items-center justify-center gap-3 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all font-semibold text-slate-700 text-sm" type="button">
+<img class="w-5 h-5" data-alt="MetaMask Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMUMqUbRUSrdWE27MikY3XtJuEamT47c27sgvKm1q2r5K8wLh9eb7S_SjDEMx2bw3iF8FYAG2BTkTIEtYO-OdCeOFk9tkgCQ5SC2MMBhxUinHjmpWHYhKj9i5UeYG_t7_84lD__6di33EPbg0dmhZIHuUQIZQui5PA1WoHJNjE3B7vNh-y5a1NaDVVKOmt_d5nYVVn6KmsXkx35MCe-s2gf3yo9u47S03D6EnaJbj1FLPfZHgMIw1CUWe92xQbeKYaHGftkiVNYcQ"/>
+                                MetaMask
+                            </button>
+<button class="flex-1 flex items-center justify-center gap-3 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all font-semibold text-slate-700 text-sm" type="button">
+<img class="w-5 h-5" data-alt="WalletConnect Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCspgYE54Dt0nPRzGDFuuaGiF3XSlKFlT7JtMNQJFSz7bkzGFQijshCKu6Adoo31_98aw2ieZeS6PI2Op5ZJUr-Hql36k8fKTRkNga_S1PebRRW5Nh7CYA1YnQ_6GLoXgIwAjKshrgR2gyzt3mkiE4gJG81uaXWnzrYcZitWhcs-YkoEKT0TphHeyIvz2xSHP5QL6lWc1IQ6aHrS0skPBZ9T1aiJpk2vcedu9b-NQbRx2cvTiEZdPUu6IRLKSteYCrMKOuutS8hGmg"/>
+                                WalletConnect
+                            </button>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full py-4 mt-6 bg-gradient-to-r from-gov-blue to-teal-accent rounded-lg text-white font-bold text-lg shadow-lg shadow-gov-blue/20 hover:shadow-xl transition-all flex items-center justify-center gap-2">
+<span>⬡</span> Create My Credora Identity
+                    </button>
+</form>
+<!-- Trust Footer -->
+<div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-slate-200 grayscale opacity-60">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+<span class="text-[10px] font-bold tracking-tighter text-slate-600 uppercase">Hyperledger Fabric</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">gavel</span>
+<span class="text-[10px] font-bold tracking-tighter text-slate-600 uppercase">MeitY Aligned</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">security</span>
+<span class="text-[10px] font-bold tracking-tighter text-slate-600 uppercase">ZK Privacy Protected</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>
