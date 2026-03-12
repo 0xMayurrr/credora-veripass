@@ -26,6 +26,7 @@ app.use('/api/verify', require('./routes/verifyRoutes'));
 app.use('/api/shares', require('./routes/shareRoutes'));
 app.use('/api/devrep', require('./routes/devRepRoutes'));
 app.use('/api/certificates', require('./routes/certificates'));
+app.use('/api/ai', require('./routes/aiRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {
