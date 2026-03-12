@@ -8,7 +8,8 @@ class RevocationRegistry extends Contract {
     }
 
     // Revoke a credential with reason and optional evidence
-    async revokeCredential(ctx, credentialId, reason, evidenceIPFSHash) {
+    // Optional zkCommitment + zkGroupId allow backend to remove from Semaphore group
+    async revokeCredential(ctx, credentialId, reason, evidenceIPFSHash, zkCommitment, zkGroupId) {
         if (!credentialId || !reason) throw new Error('credentialId and reason are required');
 
         await this._requireRole(ctx, ['ADMIN', 'ISSUER_OFFICER']);
@@ -24,6 +25,8 @@ class RevocationRegistry extends Contract {
         const callerID     = ctx.clientIdentity.getID();
         const callerOrg    = ctx.clientIdentity.getMSPID();
 
+        const parsedGroupId = zkGroupId ? parseInt(zkGroupId, 10) : null;
+
         const revocationRecord = {
             docType:          'revocation',
             credentialId,
@@ -34,6 +37,8 @@ class RevocationRegistry extends Contract {
             revokedAt:        now,
             txId:             ctx.stub.getTxID(),
             status:           'REVOKED',  // can change to OVERTURNED via appeal
+            zkCommitment:     zkCommitment || null,
+            zkGroupId:        parsedGroupId,
             appeals:          []
         };
 
@@ -45,6 +50,8 @@ class RevocationRegistry extends Contract {
 
         ctx.stub.setEvent('CredentialRevoked', Buffer.from(JSON.stringify({
             credentialId, reason, revokedBy: callerID, revokedByOrg: callerOrg,
+            zkCommitment: zkCommitment || null,
+            zkGroupId: parsedGroupId,
             txId: ctx.stub.getTxID(), timestamp: now
         })));
 
@@ -157,6 +164,16 @@ class RevocationRegistry extends Contract {
             record.status = 'OVERTURNED';
             record.overturnedAt = new Date().toISOString();
             record.overturnedBy = ctx.clientIdentity.getID();
+
+            // Emit ZK reinstatement event so backend can re-add to Semaphore group
+            if (record.zkCommitment && record.zkGroupId != null) {
+                ctx.stub.setEvent('CredentialReinstatedWithZK', Buffer.from(JSON.stringify({
+                    credentialId,
+                    zkCommitment: record.zkCommitment,
+                    zkGroupId: record.zkGroupId,
+                    timestamp: record.overturnedAt
+                })));
+            }
         }
 
         await ctx.stub.putState(revokeKey, Buffer.from(JSON.stringify(record)));

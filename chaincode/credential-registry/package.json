@@ -1,0 +1,13 @@
+{
+  "name": "credential-registry",
+  "version": "1.0.0",
+  "description": "Credora Credential Registry Chaincode with Semaphore ZK support",
+  "main": "CredentialRegistry.js",
+  "scripts": {
+    "start": "fabric-chaincode-node start"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.0",
+    "fabric-shim": "^2.5.0"
+  }
+}

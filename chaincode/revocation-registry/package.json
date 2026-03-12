@@ -1,0 +1,13 @@
+{
+  "name": "revocation-registry",
+  "version": "1.0.0",
+  "description": "Credora Revocation Registry Chaincode",
+  "main": "RevocationRegistry.js",
+  "scripts": {
+    "start": "fabric-chaincode-node start"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.0",
+    "fabric-shim": "^2.5.0"
+  }
+}

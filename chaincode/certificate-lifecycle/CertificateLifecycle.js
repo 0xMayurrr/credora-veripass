@@ -80,6 +80,9 @@ class CertificateLifecycle extends Contract {
             createdByOrg:   callerOrg,
             createdAt:      now,
             updatedAt:      now,
+            // ZK Semaphore fields — populated from metadata if provided
+            zkCommitment:   metadata.zkCommitment || null,
+            zkGroupId:      metadata.zkGroupId != null ? parseInt(metadata.zkGroupId, 10) : null,
             history: [{
                 state:       CertState.DRAFT,
                 changedBy:   callerID,
@@ -148,8 +151,26 @@ class CertificateLifecycle extends Contract {
     }
 
     // ADMIN issues the certificate (recipient can now access)
+    // Emits CertificateIssuedWithZK event for backend Semaphore group sync
     async issueCertificate(ctx, certId, remarks) {
-        return await this._transitionState(ctx, certId, CertState.ISSUED, remarks || 'Certificate issued to recipient');
+        const result = await this._transitionState(ctx, certId, CertState.ISSUED, remarks || 'Certificate issued to recipient');
+        const cert = JSON.parse(result);
+
+        // If this certificate has ZK data, emit a dedicated ZK event
+        // Backend event listener uses this to add commitment to Semaphore group
+        if (cert.zkCommitment && cert.zkGroupId != null) {
+            ctx.stub.setEvent('CertificateIssuedWithZK', Buffer.from(JSON.stringify({
+                certId:       cert.certId,
+                certType:     cert.certType,
+                zkCommitment: cert.zkCommitment,
+                zkGroupId:    cert.zkGroupId,
+                txId:         ctx.stub.getTxID(),
+                timestamp:    new Date().toISOString(),
+                // NOTE: recipientId deliberately omitted — privacy-preserving
+            })));
+        }
+
+        return result;
     }
 
     // ADMIN revokes the certificate with reason
@@ -229,6 +250,20 @@ class CertificateLifecycle extends Contract {
             sort: [{ updatedAt: 'desc' }]
         };
         return await this._runQuery(ctx, JSON.stringify(query));
+    }
+
+    // Get only ZK-safe info for a certificate (no personal data)
+    async getCertificateZKInfo(ctx, certId) {
+        const cert = await this._getCertOrThrow(ctx, certId);
+        return JSON.stringify({
+            certId:       cert.certId,
+            certType:     cert.certType,
+            state:        cert.state,
+            zkCommitment: cert.zkCommitment || null,
+            zkGroupId:    cert.zkGroupId || null,
+            isRevoked:    cert.isRevoked,
+            // NOTE: recipientId, creator, and metadata deliberately omitted
+        });
     }
 
     // Get dashboard stats for the caller's org
